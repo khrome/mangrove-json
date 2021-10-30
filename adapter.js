@@ -1,7 +1,6 @@
 var request = require('request');
 var JSONStream = require('JSONStream');
 var fs = require('fs');
-//var es = require('event-stream');
 
 var Adapter = function(options){
     this.root = options.root || 'data/'
@@ -14,7 +13,6 @@ var JSONStreamBuild = function(stream, handler, cb){
   jsonStream.on('data', function(data){
       handler(data);
   });
-  //jsonStream.on('header', function(data){ });
   jsonStream.on('close', function(data){
       cb();
   });
