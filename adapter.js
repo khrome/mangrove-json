@@ -1,7 +1,6 @@
 var request = require('request');
 var JSONStream = require('JSONStream');
 var fs = require('fs');
-var path = require('path');
 //var es = require('event-stream');
 
 var Adapter = function(options){
@@ -10,23 +9,31 @@ var Adapter = function(options){
     //this.split = options.split || false;
     //this.size = options.size || 500;
 }
+var JSONStreamBuild = function(stream, handler, cb){
+  var jsonStream = stream.pipe(JSONStream.parse('*'));
+  jsonStream.on('data', function(data){
+      handler(data);
+  });
+  //jsonStream.on('header', function(data){ });
+  jsonStream.on('close', function(data){
+      cb();
+  });
+  return jsonStream;
+}
 
 Adapter.prototype.load = function(name, options, handler, cb){
     var stream;
-    var url = path.join(this.root, name+(this.filetype?'.'+this.filetype:''));
+    var url = this.root+name+(this.filetype?'.'+this.filetype:'');
     if(url.indexOf('://') !== -1){
-        stream = request({url: url})
+        stream = request({url: url});
+        JSONStreamBuild(stream, handler, cb);
     }else{
-        stream = fs.createReadStream(url);
+        fs.access(url, (err) => {
+          if(err) fs.writeFileSync(url, '[]');
+          stream = fs.createReadStream(url);
+          JSONStreamBuild(stream, handler, cb);
+        });
     }
-    var jsonStream = stream.pipe(JSONStream.parse('*'));
-    jsonStream.on('data', function(data){
-        handler(data);
-    });
-    //jsonStream.on('header', function(data){ });
-    jsonStream.on('close', function(data){
-        cb();
-    });
 }
 
 Adapter.prototype.loadCollection = function(collection, name, options, cb){
