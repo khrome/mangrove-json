@@ -1,6 +1,7 @@
 var request = require('request');
 var JSONStream = require('JSONStream');
 var fs = require('fs');
+var path = require('path');
 
 var Adapter = function(options){
     this.root = options.root || 'data/'
@@ -21,7 +22,7 @@ var JSONStreamBuild = function(stream, handler, cb){
 
 Adapter.prototype.load = function(name, options, handler, cb){
     var stream;
-    var url = this.root+name+(this.filetype?'.'+this.filetype:'');
+    var url = path.join(this.root, name+(this.filetype?'.'+this.filetype:''));
     if(url.indexOf('://') !== -1){
         stream = request({url: url});
         JSONStreamBuild(stream, handler, cb);
