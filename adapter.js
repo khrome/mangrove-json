@@ -1,4 +1,4 @@
-var request = require('request');
+var request = require('postman-reques');
 var JSONStream = require('JSONStream');
 var fs = require('fs');
 var path = require('path');
